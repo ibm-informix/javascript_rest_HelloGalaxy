@@ -1,0 +1,14 @@
+{
+  "name": "javascriptresthellogalaxy",
+  "version": "0.1.0",
+  "description": "Node_REST",
+   "scripts": {
+		"start": "node javascript_rest_HelloGalaxy.js"
+	},
+	"dependencies": {
+      "express": "4.12.x",
+      "http" : "*",
+      "ejs":"2.3.3"
+  },
+  "repository": {}
+}
