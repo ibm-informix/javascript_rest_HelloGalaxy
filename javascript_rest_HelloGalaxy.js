@@ -40,7 +40,6 @@
 var express = require('express');
 var app = express();
 var request = require('request');
-var https = require('http');
 
 //connection information
 var host = '';
@@ -48,6 +47,7 @@ var port = process.env.VCAP_APP_PORT || 8881;
 var database = '';
 var username = '';
 var password = '';
+//if pasting url info use this format
 //var url = "https://" + username + ":" + password + "@" + host + ":" + port + database;
 var url = '';
 
@@ -95,13 +95,11 @@ var melbourne = new City("Melbourne", 4087000, -37.8136, -144.9631, 61);
 var sydney = new City("Sydney", 4293000, -33.8651, -151.2094, 61);
 
 function doEverything(res) {
-	//if connecting to database using bluemix use the parseVcap function
+	//if connecting to database via bluemix use the parseVcap function
 	parseVcap();
-	
 	
 	//start chain of function calls
 	createCollection();
-	
 	
 	function createCollection(err) {
 		commands.push("1 Data Structures");
@@ -111,8 +109,7 @@ function doEverything(res) {
 		
 		data = {"name":collection};
 		url = "https://" + username + ":" + password + "@" + host + ":" + port + database;
-		request.post({url: url, body: JSON.stringify(data)}, 
-				function(error, response, body){
+		request.post({url: url, body: JSON.stringify(data)}, function(error, response, body){
 					commands.push("   -  Create collection: " +  body);
 					createTable();
 			});
@@ -131,8 +128,7 @@ function doEverything(res) {
 	                {"name":"latitude","type":"Decimal(8,4)"},
 	                {"name":"code","type":"int"}]};
 		url = "https://" + username + ":" + password + "@" + host + ":" + port + database;
-		request.post({url: url, body: JSON.stringify(data)}, 
-				function(error, response, body){
+		request.post({url: url, body: JSON.stringify(data)}, function(error, response, body){
 					commands.push("   -  Create table: " +  body);
 					createDocument();
 			});
@@ -149,16 +145,14 @@ function doEverything(res) {
 		
 		data = kansasCity.toJSON();
 		url = "https://" + username + ":" + password + "@" + host + ":" + port + database + "/" + collection;
-		request.post({url: url, body: JSON.stringify(data)}, 
-				function(error, response, body){
+		request.post({url: url, body: JSON.stringify(data)}, function(error, response, body){
 					commands.push("   -  Create document: " +  body);
 					createDocumentTable();
 			});
 		
 		function createDocumentTable(){
 			url = "https://" + username + ":" + password + "@" + host + ":" + port + database + "/" + table;
-			request.post({url: url, body: JSON.stringify(data)}, 
-					function(error, response, body){
+			request.post({url: url, body: JSON.stringify(data)}, function(error, response, body){
 						commands.push("   -  Create document: " +  body);
 						createMultipleDocument();
 				});
@@ -173,16 +167,14 @@ function doEverything(res) {
 		
 		data = [seattle.toJSON(),newYork.toJSON(),london.toJSON(),tokyo.toJSON(),madrid.toJSON(),melbourne.toJSON()];
 		url = "https://" + username + ":" + password + "@" + host + ":" + port + database + "/" + collection;
-		request.post({url: url, body: JSON.stringify(data)}, 
-				function(error, response, body){
+		request.post({url: url, body: JSON.stringify(data)}, function(error, response, body){
 					commands.push("   -  Create multiple documents: " +  body);
 					createMultipleTable();
 			});
 		
 		function createMultipleTable(){
 			url = "https://" + username + ":" + password + "@" + host + ":" + port + database + "/" + table;
-			request.post({url: url, body: JSON.stringify(data)}, 
-					function(error, response, body){
+			request.post({url: url, body: JSON.stringify(data)}, function(error, response, body){
 						commands.push("   -  Create multiple documents: " +  body);
 						listDocument();
 				});
@@ -204,15 +196,7 @@ function doEverything(res) {
 		queryValue = {_id:0};
 		queries.push(new Query("fields", JSON.stringify(queryValue)));
 		urlBasicCreator();
-//		for (var i = 0, len = queries.length; i < len;  i++) {
-//			if (i != 0)
-//				url = url + "&" + queries[i].queryType + queries[i].queryValue;
-//			else
-//				url = "https://" + username + ":" + password + "@" + host + ":" + port + database + "/" + collection + "?" + queries[i].queryType + "=" + queries[i].queryValue;			
-//		}
-		
-		request.get(url,
-				function(error, response, body){
+		request.get(url, function(error, response, body){
 					commands.push("   -  List documents: " +  body);
 					listAllDocuments();
 			});
@@ -225,8 +209,7 @@ function doEverything(res) {
 		commands.push("3.2 Find all documents in a collection");
 		
 		url = "https://" + username + ":" + password + "@" + host + ":" + port + database + "/" + collection;			
-		request.get(url,
-				function(error, response, body){
+		request.get(url, function(error, response, body){
 					commands.push("   -  List documents: " +  body);
 					countDocuments();
 			});
@@ -242,15 +225,7 @@ function doEverything(res) {
 		var queryValue = {"count":collection,"query":{"longitude":{"$lt":40.0}}};
 		queries.push(new Query("query", JSON.stringify(queryValue)));
 		urlCommandCreator();
-//		for (var i = 0, len = queries.length; i < len;  i++) {
-//			if (i != 0)
-//				url = url + "&" + queries[i].queryType + queries[i].queryValue;
-//			else
-//				url = "https://" + username + ":" + password + "@" + host + ":" + port + database + "/$cmd?" + queries[i].queryType + "=" + queries[i].queryValue;			
-//		}
-		
-		request.get(url,
-				function(error, response, body){
+		request.get(url, function(error, response, body){
 					commands.push("   -  Count documents: " +  body);
 					sortDocuments();
 			});
@@ -266,15 +241,7 @@ function doEverything(res) {
 		var queryValue = {"population":1};
 		queries.push(new Query("sort", JSON.stringify(queryValue)));
 		urlBasicCreator();
-//		for (var i = 0, len = queries.length; i < len;  i++) {
-//			if (i != 0)
-//				url = url + "&" + queries[i].queryType + queries[i].queryValue;
-//			else
-//				url = "https://" + username + ":" + password + "@" + host + ":" + port + database + "/" + collection + "?" + queries[i].queryType + "=" + queries[i].queryValue;			
-//		}
-		
-		request.get(url,
-				function(error, response, body){
+		request.get(url, function(error, response, body){
 					commands.push("   -  Sorted documents: " +  body);
 					distinctDocuments();
 			});
@@ -290,15 +257,7 @@ function doEverything(res) {
 		var queryValue = {"distinct":collection,"key":"code","query":{"longitude":{"$gt":40.0}}};
 		queries.push(new Query("query", JSON.stringify(queryValue)));
 		urlCommandCreator();
-//		for (var i = 0, len = queries.length; i < len;  i++) {
-//			if (i != 0)
-//				url = url + "&" + queries[i].queryType + queries[i].queryValue;
-//			else
-//				url = "https://" + username + ":" + password + "@" + host + ":" + port + database + "/$cmd?" + queries[i].queryType + "=" + queries[i].queryValue;			
-//		}
-		
-		request.get(url,
-				function(error, response, body){
+		request.get(url, function(error, response, body){
 					commands.push("   -  Distinct documents: " +  body);
 					joins();
 			});
@@ -317,8 +276,7 @@ function doEverything(res) {
 			
 			data = {"name":collectionToJoin};
 			url = "https://" + username + ":" + password + "@" + host + ":" + port + database;
-			request.post({url: url, body: JSON.stringify(data)}, 
-					function(error, response, body){
+			request.post({url: url, body: JSON.stringify(data)}, function(error, response, body){
 						commands.push("   -  Create collection: " +  body);
 						insertcollectionToJoinData();
 				});
@@ -333,8 +291,7 @@ function doEverything(res) {
 			        {"countryCode":34,"country":"Spain"},
 			        {"countryCode":61,"country":"Australia"}];
 			url = "https://" + username + ":" + password + "@" + host + ":" + port + database + "/" + collectionToJoin;
-			request.post({url: url, body: JSON.stringify(data)}, 
-					function(error, response, body){
+			request.post({url: url, body: JSON.stringify(data)}, function(error, response, body){
 						commands.push("   -  Create multiple documents: " +  body);
 						createtableToJoin();
 				});
@@ -346,8 +303,7 @@ function doEverything(res) {
 			
 			data = {"name":tableToJoin,"columns":[{"name":"countryCode","type":"int"},{"name":"country","type":"varchar(50)"}]};
     		url = "https://" + username + ":" + password + "@" + host + ":" + port + database;
-    		request.post({url: url, body: JSON.stringify(data)}, 
-    				function(error, response, body){
+    		request.post({url: url, body: JSON.stringify(data)}, function(error, response, body){
     					commands.push("   -  Create table: " +  body);
     					inserttableToJoinData();
     			});
@@ -362,8 +318,7 @@ function doEverything(res) {
 			        {"countryCode":34,"country":"Spain"},
 			        {"countryCode":61,"country":"Australia"}];
 			url = "https://" + username + ":" + password + "@" + host + ":" + port + database + "/" + tableToJoin;
-			request.post({url: url, body: JSON.stringify(data)}, 
-					function(error, response, body){
+			request.post({url: url, body: JSON.stringify(data)}, function(error, response, body){
 						commands.push("   -  Create multiple documents: " +  body);
 						joinCollectionWithCollection();
 				});
@@ -387,15 +342,7 @@ function doEverything(res) {
 			var queryValue = jsonObject;
 			queries.push(new Query("query", JSON.stringify(queryValue)));
 			urlJoinCreator();
-//			for (var i = 0, len = queries.length; i < len;  i++) {
-//				if (i != 0)
-//					url = url + "&" + queries[i].queryType + queries[i].queryValue;
-//				else
-//					url = "https://" + username + ":" + password + "@" + host + ":" + port + database + "/system.join?" + queries[i].queryType + "=" + queries[i].queryValue;			
-//			}
-			
-			request.get(url,
-					function(error, response, body){
+			request.get(url, function(error, response, body){
 						commands.push("   -  Collection - Collection Join: " +  body);
 						joinCollectionWithTable();
 				});
@@ -419,15 +366,7 @@ function doEverything(res) {
 			var queryValue = jsonObject;
 			queries.push(new Query("query", JSON.stringify(queryValue)));
 			urlJoinCreator();
-//			for (var i = 0, len = queries.length; i < len;  i++) {
-//				if (i != 0)
-//					url = url + "&" + queries[i].queryType + queries[i].queryValue;
-//				else
-//					url = "https://" + username + ":" + password + "@" + host + ":" + port + database + "/system.join?" + queries[i].queryType + "=" + queries[i].queryValue;			
-//			}
-			
-			request.get(url,
-					function(error, response, body){
+			request.get(url, function(error, response, body){
 						commands.push("   -  Collection - Table Join: " +  body);
 						joinTableWithTable();
 				});
@@ -450,15 +389,7 @@ function doEverything(res) {
 			var queryValue = jsonObject;
 			queries.push(new Query("query", JSON.stringify(queryValue)));
 			urlJoinCreator();
-//			for (var i = 0, len = queries.length; i < len;  i++) {
-//				if (i != 0)
-//					url = url + "&" + queries[i].queryType + queries[i].queryValue;
-//				else
-//					url = "https://" + username + ":" + password + "@" + host + ":" + port + database + "/system.join?" + queries[i].queryType + "=" + queries[i].queryValue;			
-//			}
-			
-			request.get(url,
-					function(error, response, body){
+			request.get(url, function(error, response, body){
 						commands.push("   -  Table - Table Join: " +  body);
 						batchSize();
 				});
@@ -475,15 +406,7 @@ function doEverything(res) {
 		var queryValue = 2;
 		queries.push(new Query("batchSize", queryValue));
 		urlBasicCreator();
-//		for (var i = 0, len = queries.length; i < len;  i++) {
-//			if (i != 0)
-//				url = url + "&" + queries[i].queryType + queries[i].queryValue;
-//			else
-//				url = "https://" + username + ":" + password + "@" + host + ":" + port + database + "/" + collection + "?" + queries[i].queryType + "=" + queries[i].queryValue;			
-//		}
-		
-		request.get(url,
-				function(error, response, body){
+		request.get(url, function(error, response, body){
 					commands.push("   -  Batch documents: " +  body);
 					projection();
 			});
@@ -501,15 +424,7 @@ function doEverything(res) {
 		queryValue = {"population":{"$gt":8000000}};
 		queries.push(new Query("query", JSON.stringify(queryValue)));
 		urlBasicCreator();
-//		for (var i = 0, len = queries.length; i < len;  i++) {
-//			if (i != 0)
-//				url = url + "&" + queries[i].queryType + queries[i].queryValue;
-//			else
-//				url = "https://" + username + ":" + password + "@" + host + ":" + port + database + "/" + collection + "?" + queries[i].queryType + "=" + queries[i].queryValue;			
-//		}
-		
-		request.get(url,
-				function(error, response, body){
+		request.get(url, function(error, response, body){
 					commands.push("   -  Projection documents: " +  body);
 					updateDocument();
 			});
@@ -524,16 +439,8 @@ function doEverything(res) {
 		var queryValue = {"name":"Seattle"};
 		queries.push(new Query("query", JSON.stringify(queryValue)));
 		urlBasicCreator();
-//		for (var i = 0, len = queries.length; i < len;  i++) {
-//			if (i != 0)
-//				url = url + "&" + queries[i].queryType + queries[i].queryValue;
-//			else
-//				url = "https://" + username + ":" + password + "@" + host + ":" + port + database + "/" + collection + "?" + queries[i].queryType + "=" + queries[i].queryValue;			
-//		}
-		
 		data = {"$set":{"code":999}};
-		request.post({url: url, body: JSON.stringify(data)}, 
-				function(error, response, body){
+		request.post({url: url, body: JSON.stringify(data)}, function(error, response, body){
 					commands.push("   -  Update document: " +  body);
 					deleteDocument();
 			});
@@ -548,15 +455,7 @@ function doEverything(res) {
 		var queryValue = {"name":"Tokyo"};
 		queries.push(new Query("query", JSON.stringify(queryValue)));
 		urlBasicCreator();
-//		for (var i = 0, len = queries.length; i < len;  i++) {
-//			if (i != 0)
-//				url = url + "&" + queries[i].queryType + queries[i].queryValue;
-//			else
-//				url = "https://" + username + ":" + password + "@" + host + ":" + port + database + "/" + collection + "?" + queries[i].queryType + "=" + queries[i].queryValue;			
-//		}
-		
-		request.del(url, 
-				function(error, response, body){
+		request.del(url, function(error, response, body){
 					commands.push("   -  Delete document: " +  body);
 					sqlPassthrough();
 			});
@@ -575,15 +474,7 @@ function doEverything(res) {
 		var queryValue = {"$sql":"create table if not exists town (name varchar(255), countryCode int)"};
 		queries.push(new Query("query", JSON.stringify(queryValue)));
 		urlSQLCreator();
-//		for (var i = 0, len = queries.length; i < len;  i++) {
-//			if (i != 0)
-//				url = url + "&" + queries[i].queryType + queries[i].queryValue;
-//			else
-//				url = "https://" + username + ":" + password + "@" + host + ":" + port + database + "/system.sql?" + queries[i].queryType + "=" + queries[i].queryValue;			
-//		}
-		
-		request.get(url, 
-				function(error, response, body) {
+		request.get(url, function(error, response, body) {
 				commands.push("   -  SQL Create: " + body);
 				sqlInsertDocument();
 			});
@@ -596,15 +487,7 @@ function doEverything(res) {
 			var queryValue = {"$sql":"insert into town values ('Manhattan', 1)"};
 			queries.push(new Query("query", JSON.stringify(queryValue)));
 			urlSQLCreator();
-//			for (var i = 0, len = queries.length; i < len;  i++) {
-//				if (i != 0)
-//					url = url + "&" + queries[i].queryType + queries[i].queryValue;
-//				else
-//					url = "https://" + username + ":" + password + "@" + host + ":" + port + database + "/system.sql?" + queries[i].queryType + "=" + queries[i].queryValue;			
-//			}
-			
-			request.get(url, 
-					function(error, response, body) {
+			request.get(url, function(error, response, body) {
 					commands.push("   -  SQL Insert: " + body);
 					sqlListAll();
 			});
@@ -617,15 +500,7 @@ function doEverything(res) {
 			var queryValue = {"$sql":"select * from town"};
 			queries.push(new Query("query", JSON.stringify(queryValue)));
 			urlSQLCreator();
-//			for (var i = 0, len = queries.length; i < len;  i++) {
-//				if (i != 0)
-//					url = url + "&" + queries[i].queryType + queries[i].queryValue;
-//				else
-//					url = "https://" + username + ":" + password + "@" + host + ":" + port + database + "/system.sql?" + queries[i].queryType + "=" + queries[i].queryValue;			
-//			}
-			
-			request.get(url, 
-					function(error, response, body) {
+			request.get(url, function(error, response, body) {
 					commands.push("   -  SQL Select: " + body);
 					sqlDropTable();
 			});
@@ -638,15 +513,7 @@ function doEverything(res) {
 			var queryValue = {"$sql":"drop table town"};
 			queries.push(new Query("query", JSON.stringify(queryValue)));
 			urlSQLCreator();
-//			for (var i = 0, len = queries.length; i < len;  i++) {
-//				if (i != 0)
-//					url = url + "&" + queries[i].queryType + queries[i].queryValue;
-//				else
-//					url = "https://" + username + ":" + password + "@" + host + ":" + port + database + "/system.sql?" + queries[i].queryType + "=" + queries[i].queryValue;			
-//			}
-			
-			request.get(url, 
-					function(error, response, body) {
+			request.get(url, function(error, response, body) {
 					commands.push("   -  SQL Drop Table: " + body);
 					transactions();
 			});
@@ -667,15 +534,7 @@ function doEverything(res) {
 			var queryValue = {transaction:"enable"};
 			queries.push(new Query("query", JSON.stringify(queryValue)));
 			urlCommandCreator();
-//			for (var i = 0, len = queries.length; i < len;  i++) {
-//				if (i != 0)
-//					url = url + "&" + queries[i].queryType + queries[i].queryValue;
-//				else
-//					url = "https://" + username + ":" + password + "@" + host + ":" + port + database + "/$cmd?" + queries[i].queryType + "=" + queries[i].queryValue;			
-//			}
-			
-			request.get(url,
-					function(error, response, body){
+			request.get(url, function(error, response, body){
 						commands.push("   -  Transaction Enable: " +  body);
 						insertTransaction();
 				});
@@ -686,8 +545,7 @@ function doEverything(res) {
 			
 			data = sydney.toJSON();
 			url = "https://" + username + ":" + password + "@" + host + ":" + port + database + "/" + collection;
-			request.post({url: url, body: JSON.stringify(data)}, 
-					function(error, response, body){
+			request.post({url: url, body: JSON.stringify(data)}, function(error, response, body){
 						commands.push("   -  Create document: " +  body);
 						updateTransaction();
 				});
@@ -700,16 +558,8 @@ function doEverything(res) {
 			var queryValue = {"name":"Seattle"};
 			queries.push(new Query("query", JSON.stringify(queryValue)));
 			urlBasicCreator();
-//			for (var i = 0, len = queries.length; i < len;  i++) {
-//				if (i != 0)
-//					url = url + "&" + queries[i].queryType + queries[i].queryValue;
-//				else
-//					url = "https://" + username + ":" + password + "@" + host + ":" + port + database + "/" + collection + "?" + queries[i].queryType + "=" + queries[i].queryValue;			
-//			}
-			
 			data = {"$set":{"code":998}};
-			request.post({url: url, body: JSON.stringify(data)}, 
-					function(error, response, body){
+			request.post({url: url, body: JSON.stringify(data)}, function(error, response, body){
 						commands.push("   -  Update document: " +  body);
 						commitTransaction();
 				});
@@ -722,15 +572,7 @@ function doEverything(res) {
 			var queryValue = {transaction:"commit"};
 			queries.push(new Query("query", JSON.stringify(queryValue)));
 			urlCommandCreator();
-//			for (var i = 0, len = queries.length; i < len;  i++) {
-//				if (i != 0)
-//					url = url + "&" + queries[i].queryType + queries[i].queryValue;
-//				else
-//					url = "https://" + username + ":" + password + "@" + host + ":" + port + database + "/$cmd?" + queries[i].queryType + "=" + queries[i].queryValue;			
-//			}
-			
-			request.get(url,
-					function(error, response, body){
+			request.get(url, function(error, response, body){
 						commands.push("   -  Transaction commit: " +  body);
 						deleteDocumentTransaction();
 				});
@@ -744,15 +586,7 @@ function doEverything(res) {
 			var queryValue = {"name":"Sydney"};
 			queries.push(new Query("query", JSON.stringify(queryValue)));
 			urlBasicCreator();
-//			for (var i = 0, len = queries.length; i < len;  i++) {
-//				if (i != 0)
-//					url = url + "&" + queries[i].queryType + queries[i].queryValue;
-//				else
-//					url = "https://" + username + ":" + password + "@" + host + ":" + port + database + "/" + collection + "?" + queries[i].queryType + "=" + queries[i].queryValue;			
-//			}
-			
-			request.del(url, 
-					function(error, response, body){
+			request.del(url, function(error, response, body){
 						commands.push("   -  Delete document: " +  body);
 						rollbackTransaction();
 				});
@@ -765,15 +599,7 @@ function doEverything(res) {
 			var queryValue = {transaction:"rollback"};
 			queries.push(new Query("query", JSON.stringify(queryValue)));
 			urlCommandCreator();
-//			for (var i = 0, len = queries.length; i < len;  i++) {
-//				if (i != 0)
-//					url = url + "&" + queries[i].queryType + queries[i].queryValue;
-//				else
-//					url = "https://" + username + ":" + password + "@" + host + ":" + port + database + "/$cmd?" + queries[i].queryType + "=" + queries[i].queryValue;			
-//			}
-			
-			request.get(url,
-					function(error, response, body){
+			request.get(url, function(error, response, body){
 						commands.push("   -  Transaction Rollback: " +  body);
 						statusTransaction();
 				});
@@ -786,15 +612,7 @@ function doEverything(res) {
 			var queryValue = {transaction:"status"};
 			queries.push(new Query("query", JSON.stringify(queryValue)));
 			urlCommandCreator();
-//			for (var i = 0, len = queries.length; i < len;  i++) {
-//				if (i != 0)
-//					url = url + "&" + queries[i].queryType + queries[i].queryValue;
-//				else
-//					url = "https://" + username + ":" + password + "@" + host + ":" + port + database + "/$cmd?" + queries[i].queryType + "=" + queries[i].queryValue;			
-//			}
-			
-			request.get(url,
-					function(error, response, body){
+			request.get(url, function(error, response, body){
 						commands.push("   -  Transaction Status: " +  body);
 						endTransaction();
 				});
@@ -807,15 +625,7 @@ function doEverything(res) {
 			var queryValue = {transaction:"disable"};
 			queries.push(new Query("query", JSON.stringify(queryValue)));
 			urlCommandCreator();
-//			for (var i = 0, len = queries.length; i < len;  i++) {
-//				if (i != 0)
-//					url = url + "&" + queries[i].queryType + queries[i].queryValue;
-//				else
-//					url = "https://" + username + ":" + password + "@" + host + ":" + port + database + "/$cmd?" + queries[i].queryType + "=" + queries[i].queryValue;			
-//			}
-			
-			request.get(url,
-					function(error, response, body){
+			request.get(url, function(error, response, body){
 						commands.push("   -  Transaction disable: " +  body);
 						catalog();
 				});
@@ -840,15 +650,7 @@ function doEverything(res) {
 			var queryValue = {includeRelational:true};
 			queries.push(new Query("options", JSON.stringify(queryValue)));
 			urlCatalogCreator();
-//			for (var i = 0, len = queries.length; i < len;  i++) {
-//				if (i != 0)
-//					url = url + "&" + queries[i].queryType + queries[i].queryValue;
-//				else
-//					url = "https://" + username + ":" + password + "@" + host + ":" + port + database + "?" + queries[i].queryType + "=" + queries[i].queryValue;			
-//			}
-			
-			request.get(url,
-					function(error, response, body){
+			request.get(url, function(error, response, body){
 						commands.push("   -  Catalog: " +  body);
 						includeSystem();
 				});
@@ -864,15 +666,7 @@ function doEverything(res) {
 			var queryValue = {includeRelational:true,includeSystem:true};
 			queries.push(new Query("options", JSON.stringify(queryValue)));
 			urlCatalogCreator();
-//			for (var i = 0, len = queries.length; i < len;  i++) {
-//				if (i != 0)
-//					url = url + "&" + queries[i].queryType + queries[i].queryValue;
-//				else
-//					url = "https://" + username + ":" + password + "@" + host + ":" + port + database + "?" + queries[i].queryType + "=" + queries[i].queryValue;			
-//			}
-			
-			request.get(url,
-					function(error, response, body){
+			request.get(url, function(error, response, body){
 						commands.push("   -  Catalog: " +  body);
 						commandStatments();
 				});
@@ -895,17 +689,8 @@ function doEverything(res) {
 			queries.length = 0;
 			var queryValue = {collStats:collection};
 			queries.push(new Query("query", JSON.stringify(queryValue)));
-			
 			urlCommandCreator();
-//			for (var i = 0, len = queries.length; i < len;  i++) {
-//				if (i != 0)
-//					url = url + "&" + queries[i].queryType + queries[i].queryValue;
-//				else
-//					url = "https://" + username + ":" + password + "@" + host + ":" + port + database + "/$cmd?" + queries[i].queryType + "=" + queries[i].queryValue;			
-//			}
-			
-			request.get(url,
-					function(error, response, body){
+			request.get(url, function(error, response, body){
 						commands.push("   -  collStats: " +  body);
 						dbStats();
 				});
@@ -918,19 +703,9 @@ function doEverything(res) {
 			
 			queries.length = 0;
 			var queryValue = {dbStats:1};
-			queries.push(new Query("query", JSON.stringify(queryValue)));
-			
+			queries.push(new Query("query", JSON.stringify(queryValue)));	
 			urlCommandCreator();
-			
-//			for (var i = 0, len = queries.length; i < len;  i++) {
-//				if (i != 0)
-//					url = url + "&" + queries[i].queryType + queries[i].queryValue;
-//				else
-//					url = "https://" + username + ":" + password + "@" + host + ":" + port + database + "/$cmd?" + queries[i].queryType + "=" + queries[i].queryValue;			
-//			}
-			
-			request.get(url,
-					function(error, response, body){
+			request.get(url, function(error, response, body){
 						commands.push("   -  dbStats: " +  body);
 						listAllCollections();
 				});
@@ -957,8 +732,7 @@ function doEverything(res) {
 		commands.push("\n11 Drop a collection");
 		
 		url = "https://" + username + ":" + password + "@" + host + ":" + port + database + "/" + collection;
-		request.del(url, 
-				function(error, response, body){
+		request.del(url, function(error, response, body){
 					commands.push("   -  Delete collection: " +  body);
 					//At this point you can call another function
 					//For the purpose of this example, we use callbacks to drop the rest of the collections/tables
@@ -990,7 +764,7 @@ function doEverything(res) {
 	
 	function printBrowser(){
 		
-		//print a log responses to a webpage
+		//print a log of responses to a webpage
 		app.set('view engine', 'ejs');
 		res.render('index.ejs', {commands: commands});
 		
@@ -1008,7 +782,6 @@ function parseVcap(){
 	host = credentials.host;
 	username = credentials.username;
 	password = credentials.password;
-	
 	if (ssl) {	
 		url = credentials.ssl_rest_url;
 		port = credentials.ssl_rest_port;
@@ -1023,7 +796,7 @@ function urlCommandCreator() {
 	
 	for (var i = 0, len = queries.length; i < len;  i++) {
 		if (i != 0)
-			url = url + "&" + queries[i].queryType + queries[i].queryValue;
+			url = url + "&" + queries[i].queryType + "=" + queries[i].queryValue;
 		else
 			url = url + "/$cmd?" + queries[i].queryType + "=" + queries[i].queryValue;			
 	}
@@ -1033,7 +806,7 @@ function urlCatalogCreator() {
 	
 	for (var i = 0, len = queries.length; i < len;  i++) {
 		if (i != 0)
-			url = url + "&" + queries[i].queryType + queries[i].queryValue;
+			url = url + "&" + queries[i].queryType + "=" + queries[i].queryValue;
 		else
 			url = url + "?" + queries[i].queryType + "=" + queries[i].queryValue;			
 	}
@@ -1043,7 +816,7 @@ function urlSQLCreator() {
 	
 	for (var i = 0, len = queries.length; i < len;  i++) {
 		if (i != 0)
-			url = url + "&" + queries[i].queryType + queries[i].queryValue;
+			url = url + "&" + queries[i].queryType + "=" + queries[i].queryValue;
 		else
 			url = url + "/system.sql?" + queries[i].queryType + "=" + queries[i].queryValue;			
 	}
@@ -1054,7 +827,7 @@ function urlJoinCreator() {
 	
 	for (var i = 0, len = queries.length; i < len;  i++) {
 		if (i != 0)
-			url = url + "&" + queries[i].queryType + queries[i].queryValue;
+			url = url + "&" + queries[i].queryType + "=" + queries[i].queryValue;
 		else
 			url = url + "/system.join?" + queries[i].queryType + "=" + queries[i].queryValue;			
 	}
@@ -1065,7 +838,7 @@ function urlBasicCreator() {
 	
 	for (var i = 0, len = queries.length; i < len;  i++) {
 		if (i != 0)
-			url = url + "&" + queries[i].queryType + queries[i].queryValue;
+			url = url + "&" + queries[i].queryType + "=" + queries[i].queryValue;
 		else
 			url = url + "/" + collection + "?" + queries[i].queryType + "=" + queries[i].queryValue;			
 	}
