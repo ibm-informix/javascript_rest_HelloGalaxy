@@ -4,7 +4,7 @@
 
 ###Relevant files:
 
-####javascript_rest_HelloGalaxy.java
+####javascript_rest_HelloGalaxy.js
 
 This file contains all of the sample data interacting with the database.
 
